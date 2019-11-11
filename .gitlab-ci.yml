@@ -14,7 +14,7 @@ build_docker:dockerhub:arm32v6:
     - master
   cache: {}
   variables:
-    IMAGE_TAG: samibourouis/balena-cli:arm32v6
+    IMAGE_TAG: samibourouis/rpi-chronograf:arm32v6
   before_script:
     - docker info
     - echo $CI_BUILD_TOKEN | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
