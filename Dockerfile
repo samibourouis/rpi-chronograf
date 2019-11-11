@@ -38,5 +38,6 @@ EXPOSE 8888
 VOLUME /var/lib/chronograf
 
 COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["chronograf"]
