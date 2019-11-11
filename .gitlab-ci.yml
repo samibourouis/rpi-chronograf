@@ -2,6 +2,7 @@ image: docker:latest
 
 stages:
   - build-docker
+  - publish-git
 
 # Build docker
 build_docker:arm32v6:
