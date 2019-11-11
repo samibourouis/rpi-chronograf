@@ -20,6 +20,7 @@ build_docker:arm32v6:
     - docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}
   script:
     - docker build -t ${IMAGE_TAG} .
+    - docker tag $IMAGE_TAG $IMAGE_TAG
     - docker push ${IMAGE_TAG}
 
 # Publish to Github
