@@ -4,7 +4,7 @@ stages:
   - build-docker
 
 # Build docker
-build_docker:dockerhub:arm32v6:
+build_docker:arm32v6:
   image: docker:latest
   stage: build-docker
   tags:
@@ -12,14 +12,31 @@ build_docker:dockerhub:arm32v6:
     - shell
   only:
     - master
-  cache: {}
   variables:
     IMAGE_TAG: samibourouis/rpi-chronograf:arm32v6
   before_script:
     - docker info
-    - echo $CI_BUILD_TOKEN | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
   script:
-    - docker build --no-cache -t $IMAGE_TAG .
-    - BALENA_CLI_VERSION=`docker run -i $IMAGE_TAG balena version`
-    - docker tag $IMAGE_TAG $IMAGE_TAG-$BALENA_CLI_VERSION
-    - docker push $IMAGE_TAG-$BALENA_CLI_VERSION
+    - echo $CI_BUILD_TOKEN | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
+    - docker build -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
+    - docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}
+    - docker push $IMAGE_TAG
+
+# Publish to Github
+github_mirror:
+  stage: publish-git
+  image:
+    name: alpine/git
+    entrypoint: [ "/bin/sh", "-c" ]
+  only:
+    - master
+  variables:
+    GIT_STRATEGY: clone
+    GIT_CHECKOUT: "false"
+  script: |
+    cd /tmp
+    git clone --mirror ${CI_REPOSITORY_URL} project
+    cd project
+    git remote add github https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/samibourouis/rpi-chronograf.git
+    git push --mirror github
