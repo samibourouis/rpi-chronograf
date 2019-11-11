@@ -5,6 +5,31 @@ stages:
   - publish-git
 
 # Build docker
+build_docker:gitlab:
+  image: docker:latest
+  stage: build-docker
+  tags:
+    - docker
+  only:
+    - master
+  cache: {}
+  variables:
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  before_script:
+    - docker info
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+  script:
+    - docker build --no-cache -t $IMAGE_TAG .
+    - BALENA_CLI_VERSION=`docker run -i $IMAGE_TAG balena version`
+    - docker tag $IMAGE_TAG $IMAGE_TAG-$BALENA_CLI_VERSION
+    - docker push $IMAGE_TAG-$BALENA_CLI_VERSION
+    - |
+      if [ "$CI_COMMIT_REF_NAME" == "master" ]; then
+        docker tag "$IMAGE_TAG" "${CI_REGISTRY_IMAGE}:latest"
+        docker push "${CI_REGISTRY_IMAGE}:latest"
+      fi
+
+# Build docker
 build_docker:arm32v6:
   image: docker:latest
   stage: build-docker
