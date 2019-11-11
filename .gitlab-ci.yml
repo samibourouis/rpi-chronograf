@@ -17,8 +17,8 @@ build_docker:arm32v6:
     IMAGE_TAG: samibourouis/rpi-chronograf:arm32v6
   before_script:
     - docker info
+    - docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}
   script:
-    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
     - docker build -t ${IMAGE_TAG} .
     - docker push ${IMAGE_TAG}
 
